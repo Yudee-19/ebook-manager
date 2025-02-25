@@ -24,25 +24,25 @@ const authMiddleware = (req, res, next) => {
     }
 };
 
-// Create a memory storage to temporarily hold the file data
-const storage = multer.memoryStorage();
-const upload = multer({ storage }).fields([
-    { name: 'title' },
-    { name: 'author' },
-    { name: 'description' },
-    { name: 'genre' },
-    { name: 'ebook', maxCount: 1 }, // File field
-]);
+// // Create a memory storage to temporarily hold the file data
+// const storage = multer.memoryStorage();
+// const upload = multer({ storage }).fields([
+//     { name: 'title' },
+//     { name: 'author' },
+//     { name: 'description' },
+//     { name: 'genre' },
+//     { name: 'ebook', maxCount: 1 }, // File field
+// ]);
 
-const parseFields = (req, res, next) => {
-    upload(req, res, (err) => {
-        if (err) {
-            console.error('Error parsing form fields:', err);
-            return res.status(400).send(`Error parsing form fields: ${err.message}`);
-        }
-        next();
-    });
-};
+// const parseFields = (req, res, next) => {
+//     upload(req, res, (err) => {
+//         if (err) {
+//             console.error('Error parsing form fields:', err);
+//             return res.status(400).send(`Error parsing form fields: ${err.message}`);
+//         }
+//         next();
+//     });
+// };
 
 
-module.exports = { authMiddleware, parseFields };
+module.exports = { authMiddleware };

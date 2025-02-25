@@ -1,5 +1,4 @@
 // utils/zodValidation.js
-const { name } = require('ejs');
 const { z } = require('zod');
 
 const signupSchema = z.object({
@@ -9,10 +8,10 @@ const signupSchema = z.object({
 });
 
 const ebookSchema = z.object({
-    title: z.string().min(3).max(100),
-    author: z.string().min(3).max(50),
-    genre: z.string().min(3).max(30).optional(),
-    description: z.string().min(3).max(30).optional(),
+    title: z.string(),
+    author: z.string(),
+    genre: z.string().optional(),
+    description: z.string().optional(),
 });
 
 const signinSchema = z.object({

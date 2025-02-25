@@ -7,6 +7,7 @@ const { signupSchema, signinSchema } = require('../utils/zodValidation');
 
 // Sign Up Controller
 const signup = async (req, res) => {
+    console.log("Received body:", req.body)
     const validation = signupSchema.safeParse(req.body);
     if (!validation.success) {
         return res.status(411).json({ errors: validation.error.errors });
@@ -26,8 +27,8 @@ const signup = async (req, res) => {
 
         // Create and save the user
         const newUser = new UserModel({ name, email, password: hashedPassword });
+        await newUser.save();
         console.log(newUser);
-        await UserModel.create(newUser);
 
 
         res.status(200).json({ message: 'Signed up successfully' });

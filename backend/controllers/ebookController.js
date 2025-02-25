@@ -16,7 +16,7 @@ const addEbook = async (req, res) => {
     if (!validation.success) {
         return res.status(400).json({ errors: validation.error.errors });
     }
-    // console.log("req.file:", req.file);  // File object
+    console.log("req.file:", req.file);  // File object
     // console.log("req.body:", typeof req.body);  // FormData fields
     // console.log("req.user:", req.user);  // User from authMiddleware
 
@@ -73,14 +73,7 @@ const getEbooks = async (req, res) => {
 };
 
 const readEbooks = async (req, res) => {
-    const tempDir = path.join(os.tmpdir(), 'ebook-temp');
-
     try {
-        // Create temp directory if it doesn't exist
-        if (!fs.existsSync(tempDir)) {
-            fs.mkdirSync(tempDir, { recursive: true });
-        }
-
         const fileId = new mongoose.Types.ObjectId(req.params.id);
         const bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, {
             bucketName: 'uploads'
@@ -92,39 +85,14 @@ const readEbooks = async (req, res) => {
         }
 
         const file = files[0];
-        const tempFilePath = path.join(tempDir, `${fileId}.epub`);
 
-        // Create write stream to temp file
-        const writeStream = fs.createWriteStream(tempFilePath);
+        // Set headers for file download
+        res.setHeader('Content-Type', 'application/epub');
+        res.setHeader('Content-Disposition', `inline; filename="${file.filename}"`);
+
+        // Stream the file to the response
         const downloadStream = bucket.openDownloadStream(fileId);
-
-        // Handle stream completion
-        writeStream.on('finish', () => {
-            res.status(200).json({
-                filePath: tempFilePath,
-                fileName: file.filename,
-                message: 'File downloaded successfully'
-            });
-
-            // Set cleanup timeout (e.g., 1 hour)
-            setTimeout(() => {
-                if (fs.existsSync(tempFilePath)) {
-                    fs.unlink(tempFilePath, (err) => {
-                        if (err) console.error('Error deleting temp file:', err);
-                        else console.log('Temp file deleted:', tempFilePath);
-                    });
-                }
-            }, 3600000); // 1 hour
-        });
-        // Handle errors
-        writeStream.on('error', (error) => {
-            console.error('Error writing file:', error);
-            res.status(500).json({ error: 'Error saving file' });
-        });
-
-        // Pipe the download stream to the write stream
-        downloadStream.pipe(writeStream);
-
+        downloadStream.pipe(res);
     } catch (err) {
         console.error('Error reading ebook:', err);
         res.status(500).json({ error: 'Server error', details: err.message });
